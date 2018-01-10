@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path';
-import { loadLib, releaseLib } from './fw';
+import { loadLib, releaseLib, setCenterAddress, setLocalServeAddress, startFyerworkServerInBackground } from './fw';
+import './bapi';
 
 /**
  * Set `__static` path to static files in production
@@ -22,7 +23,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
-    width: 1000
+    width: 1000,
+    autoHideMenuBar: true
   });
 
   mainWindow.loadURL(winURL);
@@ -33,7 +35,12 @@ function createWindow() {
 }
 
 app.on('ready', createWindow);
-app.on('ready', () => loadLib(join(__dirname, '..', '..', 'lib', 'fyerwork.so')));
+app.on('ready', () => {
+  loadLib(join(__dirname, '..', '..', 'lib', 'fyerwork.so'));
+  setCenterAddress(process.env.FYERWORK_CENTER_ADDRESS);
+  setLocalServeAddress(process.env.FYERWORK_LOCAL_ADDRESS);
+  startFyerworkServerInBackground();
+});
 
 app.on('will-quit', releaseLib);
 

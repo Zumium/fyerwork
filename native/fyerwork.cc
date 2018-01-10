@@ -181,7 +181,7 @@ NAN_METHOD(fetchFileInfos)
         finfo->Set(Nan::New("size").ToLocalChecked(), Nan::New<v8::Number>(fi.size));
         finfo->Set(Nan::New("hash").ToLocalChecked(), Nan::CopyBuffer(reinterpret_cast<char *>(fi.hash), 16).ToLocalChecked());
         finfo->Set(Nan::New("fragCount").ToLocalChecked(), Nan::New<v8::Number>(fi.frag_count));
-        finfo->Set(Nan::New("uploadTime").ToLocalChecked(), Nan::New<v8::Number>(fi.upload_time));
+        finfo->Set(Nan::New("uploadTime").ToLocalChecked(), v8::Date::New(Nan::GetCurrentContext(), fi.upload_time * 1000).ToLocalChecked());
         file_infos->Set(Nan::New(file_names[i]).ToLocalChecked(), finfo);
 
         free(file_names[i]);
