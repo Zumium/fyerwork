@@ -1,4 +1,6 @@
 import { app, BrowserWindow } from 'electron'
+import { join } from 'path';
+import { loadLib, releaseLib } from './fw';
 
 /**
  * Set `__static` path to static files in production
@@ -8,12 +10,12 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+let mainWindow;
+const winURL = process.env.NODE_ENV === 'development' ?
+  `http://localhost:9080` :
+  `file://${__dirname}/index.html`;
 
-function createWindow () {
+function createWindow() {
   /**
    * Initial window options
    */
@@ -21,25 +23,28 @@ function createWindow () {
     height: 563,
     useContentSize: true,
     width: 1000
-  })
+  });
 
-  mainWindow.loadURL(winURL)
+  mainWindow.loadURL(winURL);
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
 }
 
-app.on('ready', createWindow)
+app.on('ready', createWindow);
+app.on('ready', () => loadLib(join(__dirname, '..', '..', 'lib', 'fyerwork.so')));
+
+app.on('will-quit', releaseLib);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', () => {
   if (mainWindow === null) {
     createWindow()
   }
-})
+});
