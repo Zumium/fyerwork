@@ -8,3 +8,7 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
+lib/fyerwork.so
+.idea/workspace.xml
+.idea/tasks.xml
+bin
