@@ -72,25 +72,21 @@ export default {
       // Zumium 在get方法中添加get的url
       // 返回的格式为 data={'tableData': []}
       // 成功返回数据后，可以将上面定义的tableData的数据清空, 如tableData上的注释格式
-      this.$http.get("").then(res => {
+      // this.$http.get("").then(res => {
+      this.$electron.ipcRenderer.sendSync('fetch-file-infos').then(res => {
         this.tableData = res.data.tableData; //数组类型，格式同上面tableData
       });
     },
     downloadRow(index, name, address) {
       console.log(index, name, address);
-      let params = {
-        name: name,
-        address: address
-      };
       // Zumium 在post方法中添加post的url
       // 如果下载成功，返回为 data={'return': true}, 可修改返回的变量名，对应在res.data.return中修改
-      this.$http.post("", params).then(res => {
-        if (res.data.return) {
-          this.$message({
-            type: "success",
-            message: "下载成功"
-          });
-        }
+      // this.$http.post("", params).then(res => {
+      this.$electron.ipcRenderer.send('download-file', name).then(res => {
+        this.$message({
+          type: "success",
+          message: "下载成功"
+        });
       });
     }
   }
