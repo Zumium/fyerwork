@@ -23,7 +23,8 @@ ipcMain.on('upload-file', (event, filepath) => {
 ipcMain.on('download-file', (event, name, storePath) => {
     try {
         downloadFile(name, process.env.FYERWORK_DOWNLOAD_DIR);
+        event.sender.send('download-file-complete', name);
     } catch (e) {
-        event.returnValue = e;
+        event.sender.send('download-file-fail', e.message);
     }
 });

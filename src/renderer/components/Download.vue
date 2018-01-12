@@ -33,6 +33,25 @@ div.cell {
 export default {
   name: "Download",
   created() {
+    let self = this;
+    this.$electron.ipcRenderer.on(
+      "download-file-complete",
+      function(event, name) {
+        this.$message({
+          type: "success",
+          message: `文件 ${name} 下载成功`
+        });
+      }.bind(self)
+    );
+    this.$electron.ipcRenderer.on(
+      "download-file-fail",
+      function(event, errMsg) {
+        this.$message({
+          type: "error",
+          message: `文件 $name 下载失败: ${errMsg}`
+        });
+      }.bind(self)
+    );
     this.getData();
   },
   data() {
@@ -94,10 +113,6 @@ export default {
       // 如果下载成功，返回为 data={'return': true}, 可修改返回的变量名，对应在res.data.return中修改
       // this.$http.post("", params).then(res => {
       this.$electron.ipcRenderer.send("download-file", name);
-      this.$message({
-        type: "success",
-        message: "下载成功"
-      });
     }
   }
 };

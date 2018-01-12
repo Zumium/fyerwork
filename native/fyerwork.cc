@@ -47,9 +47,15 @@ void *handle;
 NAN_METHOD(loadLib)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("loadLib requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsString())
+    {
         Nan::ThrowTypeError("loadLib requires a string parameter");
+        return;
+    }
 
     char *lib_path = *Nan::Utf8String(info[0]);
     handle = dlopen(lib_path, RTLD_NOW);
@@ -82,9 +88,15 @@ NAN_METHOD(releaseLib)
 NAN_METHOD(setLocalServeAddress)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("setLocalServeAddress requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsString())
+    {
         Nan::ThrowTypeError("setLocalServeAddress requires a string parameter");
+        return;
+    }
 
     char *local_serve_address = *Nan::Utf8String(info[0]);
     set_local_serve_address(local_serve_address);
@@ -93,9 +105,15 @@ NAN_METHOD(setLocalServeAddress)
 NAN_METHOD(setCenterAddress)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("setCenterAddress requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsString())
+    {
         Nan::ThrowTypeError("setCenterAddress requires a string parameter");
+        return;
+    }
 
     char *center_address = *Nan::Utf8String(info[0]);
     set_center_address(center_address);
@@ -104,9 +122,15 @@ NAN_METHOD(setCenterAddress)
 NAN_METHOD(setMaxSendRecvMessageSize)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("setMaxSendRecvMessageSize requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("setMaxSendRecvMessageSize requires a number parameter");
+        return;
+    }
 
     int max_send_recv_msg_size = static_cast<int>(Nan::To<int64_t>(info[0]).FromJust());
     set_max_send_recv_message_size(max_send_recv_msg_size);
@@ -115,9 +139,15 @@ NAN_METHOD(setMaxSendRecvMessageSize)
 NAN_METHOD(setPort)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("setPort requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("setPort requires a number parameter");
+        return;
+    }
 
     int port = static_cast<int>(Nan::To<uint32_t>(info[0]).FromJust());
     set_port(port);
@@ -126,9 +156,15 @@ NAN_METHOD(setPort)
 NAN_METHOD(setClientPort)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("setClientPort requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("setClientPort requires a number parameter");
+        return;
+    }
 
     int client_port = static_cast<int>(Nan::To<uint32_t>(info[0]).FromJust());
     set_client_port(client_port);
@@ -137,9 +173,15 @@ NAN_METHOD(setClientPort)
 NAN_METHOD(registerFile)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("registerFile requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("registerFile requires a string parameter");
+        return;
+    }
 
     char *file_path = *Nan::Utf8String(info[0]);
     if (register_file(file_path) != 0)
@@ -149,9 +191,15 @@ NAN_METHOD(registerFile)
 NAN_METHOD(unregisterFile)
 {
     if (info.Length() != 1)
+    {
         Nan::ThrowTypeError("unregisterFile requires exact one parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("unregisterFile requires a string parameter");
+        return;
+    }
 
     char *file_name = *Nan::Utf8String(info[0]);
     if (unregister_file(file_name) != 0)
@@ -170,13 +218,19 @@ NAN_METHOD(fetchFileInfos)
     char **file_names;
     int file_num;
     if (files_fcn(&file_names, &file_num) != 0)
+    {
         Nan::ThrowError("failed to get file names");
+        return;
+    }
 
     for (int i = 0; i < file_num; i++)
     {
         file_info fi;
         if (file_info_fcn(file_names[i], &fi) != 0)
+        {
             Nan::ThrowError("failed to fetch file info");
+            return;
+        }
         v8::Local<v8::Object> finfo = Nan::New<v8::Object>();
         finfo->Set(Nan::New("size").ToLocalChecked(), Nan::New<v8::Number>(fi.size));
         finfo->Set(Nan::New("hash").ToLocalChecked(), Nan::CopyBuffer(reinterpret_cast<char *>(fi.hash), 16).ToLocalChecked());
@@ -194,28 +248,46 @@ NAN_METHOD(fetchFileInfos)
 NAN_METHOD(uploadFile)
 {
     if (info.Length() != 3)
+    {
         Nan::ThrowTypeError("uploadFile requires exact three parameter");
+        return;
+    }
     if (!info[0]->IsNumber())
+    {
         Nan::ThrowTypeError("uploadFile requires a string, a number and a bytes buffer parameters");
+        return;
+    }
 
     char *file_name = *Nan::Utf8String(info[0]);
     uint64_t size = static_cast<uint64_t>(Nan::To<int64_t>(info[1]).FromJust());
     unsigned char *hash = reinterpret_cast<unsigned char *>(node::Buffer::Data(info[2]->ToObject()));
     size_t hash_len = node::Buffer::Length(info[2]->ToObject());
     if (upload_file(file_name, size, hash, hash_len) != 0)
+    {
         Nan::ThrowError("failed to upload file");
+        return;
+    }
 }
 
 NAN_METHOD(downloadFile)
 {
     if (info.Length() != 2)
+    {
         Nan::ThrowTypeError("downloadFile requires exact two parameter");
-    if (!info[0]->IsNumber())
-        Nan::ThrowTypeError("downloadFile requires two bytes buffer parameters");
+        return;
+    }
+    if (!info[0]->IsString() || !info[1]->IsString())
+    {
+        Nan::ThrowTypeError("downloadFile requires two string parameters");
+        return;
+    }
 
     char *file_name = *Nan::Utf8String(info[0]), *store_path = *Nan::Utf8String(info[1]);
     if (download_file(file_name, store_path) != 0)
+    {
         Nan::ThrowError("failed to download file");
+        return;
+    }
 }
 
 NAN_MODULE_INIT(Init)
